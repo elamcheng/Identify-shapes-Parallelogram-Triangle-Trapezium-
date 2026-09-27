@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shape Speed Challenge: Modes</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #fff;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        p.subtitle {
+            color: #c7d2fe;
+            font-size: 1.1rem;
+        }
+
+        .game-container {
+            background: #ffffff;
+            color: #333;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            width: 100%;
+            max-width: 700px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Setup Screens */
+        .setup-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .setup-screen h2 {
+            color: #1e1b4b;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .mode-buttons, .time-buttons {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .menu-btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 18px 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .menu-btn:hover {
+            background: #4338ca;
+            transform: translateY(-3px);
+        }
+
+        .back-btn {
+            background: #64748b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            align-self: flex-start;
+        }
+        .back-btn:hover { background: #475569; }
+
+        /* Quiz Screen */
+        .quiz-screen {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .scoreboard {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background: #f8fafc;
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            color: #475569;
+        }
+
+        .score { color: #16a34a; }
+        .time-left { color: #e11d48; }
+
+        /* Timer Bar */
+        .timer-bar-container {
+            width: 100%;
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .timer-bar {
+            height: 100%;
+            width: 100%;
+            background: #22c55e;
+            transition: width 0.1s linear, background-color 0.3s;
+        }
+
+        /* Question Box */
+        .question-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 190px;
+            width: 100%;
+            border: 3px dashed #cbd5e1;
+            border-radius: 16px;
+            background: #fcfcfc;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .shape-display {
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Choices Grid - Big Fonts */
+        .choices-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            width: 100%;
+        }
+
+        .choice-btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 24px 10px;
+            font-size: 1.4rem; /* 超大字型 */
+            font-weight: 700;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .choice-btn:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+        }
+
+        /* Feedback */
+        .feedback {
+            margin-top: 15px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            min-height: 28px;
+            text-align: center;
+        }
+
+        .correct { color: #16a34a; }
+        .wrong { color: #dc2626; }
+
+        /* Game Over Screen */
+        .game-over-screen {
+            display: none;
+            text-align: center;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            padding: 10px;
+            width: 100%;
+        }
+
+        .game-over-screen h2 {
+            font-size: 2rem;
+            color: #1e293b;
+        }
+
+        .restart-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+            margin-top: 10px;
+        }
+
+        .restart-btn:hover {
+            background: #059669;
+        }
+
+        svg {
+            filter: drop-shadow(0 3px 5px rgba(0,0,0,0.1));
+        }
+
+        @media (max-width: 650px) {
+            .choices-grid {
+                grid-template-columns: 1fr;
+            }
+            .choice-btn {
+                font-size: 1.5rem;
+                padding: 18px;
+            }
+            h1 { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>⚡ Shape Speed Challenge 📐</h1>
+        <p class="subtitle">Identify Parallelogram, Triangle & Trapezium!</p>
+    </header>
+
+    <div class="game-container">
+        <!-- 1. Mode Selection Screen -->
+        <div class="setup-screen" id="mode-select-screen">
+            <h2>🎮 Select Game Mode:</h2>
+            <div class="mode-buttons">
+                <button class="menu-btn" onclick="showPerQuestionSetup()">⏱️ Speed per Question<br><span style="font-size:0.9rem; font-weight:normal;">(3s or 5s per question)</span></button>
+                <button class="menu-btn" onclick="showTotalTimeSetup()">⏳ Total Time Rush<br><span style="font-size:0.9rem; font-weight:normal;">(1m or 2m maximum score)</span></button>
+            </div>
+        </div>
+
+        <!-- 2A. Sub-setup: Per Question Settings -->
+        <div class="setup-screen" id="setup-per-q-screen" style="display: none;">
+            <button class="back-btn" onclick="backToModeSelect()">⬅️ Back</button>
+            <h2>⏱️ Select Time per Question:</h2>
+            <div class="time-buttons">
+                <button class="menu-btn" onclick="startPerQuestionGame(3)">🔥 3 Seconds</button>
+                <button class="menu-btn" onclick="startPerQuestionGame(5)">⏳ 5 Seconds</button>
+            </div>
+        </div>
+
+        <!-- 2B. Sub-setup: Total Time Rush Settings -->
+        <div class="setup-screen" id="setup-total-time-screen" style="display: none;">
+            <button class="back-btn" onclick="backToModeSelect()">⬅️ Back</button>
+            <h2>⏳ Select Total Game Duration:</h2>
+            <div class="time-buttons">
+                <button class="menu-btn" onclick="startTotalTimeGame(60)">⚡ 1 Minute (60s)</button>
+                <button class="menu-btn" onclick="startTotalTimeGame(120)">🚀 2 Minutes (120s)</button>
+            </div>
+        </div>
+
+        <!-- 3. Quiz Screen -->
+        <div class="quiz-screen" id="quiz-screen">
+            <div class="scoreboard">
+                <div id="status-left">Question: <span id="round">1</span> / 10</div>
+                <div class="score">Score: <span id="score">0</span></div>
+            </div>
+
+            <!-- Timer Bar -->
+            <div class="timer-bar-container">
+                <div class="timer-bar" id="timer-bar"></div>
+            </div>
+
+            <div class="question-box">
+                <div class="shape-display" id="shape-canvas">
+                    <!-- Dynamic SVG -->
+                </div>
+            </div>
+
+            <!-- Choices Container (Randomized Order) -->
+            <div class="choices-grid" id="choices-container"></div>
+
+            <div class="feedback" id="feedback"></div>
+        </div>
+
+        <!-- 4. Game Over Screen -->
+        <div class="game-over-screen" id="game-over-screen">
+            <h2>🎉 Challenge Complete!</h2>
+            <p style="font-size: 1.25rem; color: #475569;" id="final-score-text">Total Score: 0</p>
+            <div id="encouragement" style="font-size: 1.1rem; color: #0284c7; font-weight: bold;"></div>
+            <button class="restart-btn" onclick="backToModeSelect()">Main Menu 🏠</button>
+        </div>
+    </div>
+
+    <script>
+        const shapesData = [
+            {
+                type: 'triangle',
+                svg: `<svg width="110" height="100" viewBox="0 0 100 90"><polygon points="50,10 10,85 90,85" fill="#3b82f6" stroke="#1d4ed8" stroke-width="3" /></svg>`
+            },
+            {
+                type: 'triangle',
+                svg: `<svg width="110" height="100" viewBox="0 0 100 90"><polygon points="15,10 15,85 90,85" fill="#3b82f6" stroke="#1d4ed8" stroke-width="3" /><rect x="15" y="65" width="20" height="20" fill="none" stroke="#1d4ed8" stroke-width="2" /></svg>`
+            },
+            {
+                type: 'triangle',
+                svg: `<svg width="110" height="100" viewBox="0 0 100 95"><polygon points="50,5 95,85 5,85" fill="#60a5fa" stroke="#2563eb" stroke-width="3" /></svg>`
+            },
+            {
+                type: 'parallelogram',
+                svg: `<svg width="120" height="100" viewBox="0 0 120 90"><polygon points="35,15 110,15 85,75 10,75" fill="#10b981" stroke="#047857" stroke-width="3" /></svg>`
+            },
+            {
+                type: 'parallelogram',
+                svg: `<svg width="120" height="100" viewBox="0 0 120 90"><polygon points="20,25 95,25 100,75 25,75" fill="#34d399" stroke="#059669" stroke-width="3" /></svg>`
+            },
+            {
+                type: 'trapezium',
+                svg: `<svg width="120" height="100" viewBox="0 0 120 90"><polygon points="35,20 85,20 110,75 10,75" fill="#f59e0b" stroke="#b45309" stroke-width="3" /></svg>`
+            },
+            {
+                type: 'trapezium',
+                svg: `<svg width="120" height="100" viewBox="0 0 120 90"><polygon points="35,20 85,20 110,75 35,75" fill="#fbbf24" stroke="#d97706" stroke-width="3" /></svg>`
+            },
+            {
+                type: 'trapezium',
+                svg: `<svg width="120" height="100" viewBox="0 0 120 90"><polygon points="35,20 85,20 100,75 20,75" fill="#fcd34d" stroke="#d97706" stroke-width="3" /></svg>`
+            }
+        ];
+
+        const allOptions = [
+            { id: 'parallelogram', label: 'parallelogram' },
+            { id: 'triangle', label: 'triangle' },
+            { id: 'trapezium', label: 'trapezium' }
+        ];
+
+        let gameMode = 'per-question'; // 'per-question' or 'total-time'
+        let settingValue = 5; // seconds per q, or total seconds (60/120)
+        
+        let currentRound = 0;
+        let score = 0;
+        let correctCount = 0;
+        let currentQuestion = null;
+        let totalRoundsForPerQ = 10;
+        let isAnswerLocked = false;
+        
+        let timerInterval = null;
+        let timeLeft = 0;
+        const tickInterval = 50;
+
+        // Menu navigation
+        function backToModeSelect() {
+            clearInterval(timerInterval);
+            document.getElementById('mode-select-screen').style.display = 'flex';
+            document.getElementById('setup-per-q-screen').style.display = 'none';
+            document.getElementById('setup-total-time-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('game-over-screen').style.display = 'none';
+        }
+
+        function showPerQuestionSetup() {
+            document.getElementById('mode-select-screen').style.display = 'none';
+            document.getElementById('setup-per-q-screen').style.display = 'flex';
+        }
+
+        function showTotalTimeSetup() {
+            document.getElementById('mode-select-screen').style.display = 'none';
+            document.getElementById('setup-total-time-screen').style.display = 'flex';
+        }
+
+        // Start Modes
+        function startPerQuestionGame(seconds) {
+            gameMode = 'per-question';
+            settingValue = seconds;
+            currentRound = 0;
+            score = 0;
+            correctCount = 0;
+
+            document.getElementById('setup-per-q-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'flex';
+            nextQuestion();
+        }
+
+        function startTotalTimeGame(totalSeconds) {
+            gameMode = 'total-time';
+            settingValue = totalSeconds;
+            currentRound = 0;
+            score = 0;
+            correctCount = 0;
+
+            document.getElementById('setup-total-time-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'flex';
+            nextQuestion();
+        }
+
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function nextQuestion() {
+            // Check end conditions for Per-Question mode
+            if (gameMode === 'per-question' && currentRound >= totalRoundsForPerQ) {
+                endGame();
+                return;
+            }
+
+            currentRound++;
+            isAnswerLocked = false;
+            document.getElementById('feedback').textContent = '';
+
+            // Update header status based on mode
+            if (gameMode === 'per-question') {
+                document.getElementById('status-left').innerHTML = `Question: <span id="round">${currentRound}</span> / ${totalRoundsForPerQ}`;
+            } else {
+                document.getElementById('status-left').innerHTML = `Solved: <span id="round">${correctCount}</span>`;
+            }
+            document.getElementById('score').textContent = score;
+
+            // Pick random shape
+            const randomIndex = Math.floor(Math.random() * shapesData.length);
+            currentQuestion = shapesData[randomIndex];
+            document.getElementById('shape-canvas').innerHTML = currentQuestion.svg;
+
+            // Randomize options order
+            const randomizedOptions = shuffleArray(allOptions);
+            const container = document.getElementById('choices-container');
+            container.innerHTML = '';
+
+            randomizedOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.textContent = opt.label;
+                btn.onclick = () => checkAnswer(opt.id);
+                container.appendChild(btn);
+            });
+
+            // Handle Timers based on mode
+            clearInterval(timerInterval);
+            const timerBar = document.getElementById('timer-bar');
+            timerBar.style.backgroundColor = '#22c55e';
+
+            if (gameMode === 'per-question') {
+                // Timer per question (3s or 5s)
+                timeLeft = settingValue * 1000;
+                const totalTimeMs = timeLeft;
+                timerBar.style.width = '100%';
+
+                timerInterval = setInterval(() => {
+                    if (isAnswerLocked) return;
+                    timeLeft -= tickInterval;
+                    const percentage = (timeLeft / totalTimeMs) * 100;
+                    timerBar.style.width = Math.max(percentage, 0) + '%';
+
+                    if (percentage < 30) timerBar.style.backgroundColor = '#ef4444';
+                    else if (percentage < 60) timerBar.style.backgroundColor = '#f59e0b';
+
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        handleTimeoutPerQuestion();
+                    }
+                }, tickInterval);
+
+            } else {
+                // If it's the very first question of Total Time mode, start the global countdown
+                if (currentRound === 1) {
+                    timeLeft = settingValue * 1000;
+                    const totalTimeMs = timeLeft;
+
+                    timerInterval = setInterval(() => {
+                        timeLeft -= tickInterval;
+                        const percentage = (timeLeft / totalTimeMs) * 100;
+                        timerBar.style.width = Math.max(percentage, 0) + '%';
+
+                        if (percentage < 30) timerBar.style.backgroundColor = '#ef4444';
+                        else if (percentage < 60) timerBar.style.backgroundColor = '#f59e0b';
+
+                        if (timeLeft <= 0) {
+                            clearInterval(timerInterval);
+                            endGame();
+                        }
+                    }, tickInterval);
+                }
+            }
+        }
+
+        function checkAnswer(selectedType) {
+            if (isAnswerLocked) return;
+            isAnswerLocked = true;
+            if (gameMode === 'per-question') clearInterval(timerInterval);
+
+            const feedbackEl = document.getElementById('feedback');
+
+            if (selectedType === currentQuestion.type) {
+                score += 10;
+                correctCount++;
+                feedbackEl.textContent = '⚡ Correct! Great!';
+                feedbackEl.className = 'feedback correct';
+            } else {
+                feedbackEl.textContent = `❌ Wrong! It was a ${currentQuestion.type}`;
+                feedbackEl.className = 'feedback wrong';
+            }
+
+            document.getElementById('score').textContent = score;
+            if (gameMode === 'total-time') {
+                document.getElementById('round').textContent = correctCount;
+            }
+
+            // Short pause then next question
+            setTimeout(() => {
+                // If total time ran out during pause, don't trigger next question
+                if (gameMode === 'total-time' && timeLeft <= 0) return;
+                nextQuestion();
+            }, 1000);
+        }
+
+        function handleTimeoutPerQuestion() {
+            if (isAnswerLocked) return;
+            isAnswerLocked = true;
+
+            const feedbackEl = document.getElementById('feedback');
+            feedbackEl.textContent = `⏰ Time's up! It was a ${currentQuestion.type}`;
+            feedbackEl.className = 'feedback wrong';
+            
+            setTimeout(nextQuestion, 1000);
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            document.getElementById('quiz-screen').style.display = 'none';
+            const gameOverScreen = document.getElementById('game-over-screen');
+            gameOverScreen.style.display = 'flex';
+
+            let resultText = '';
+            if (gameMode === 'per-question') {
+                resultText = `Total Score: ${score} / ${totalRoundsForPerQ * 10}`;
+            } else {
+                resultText = `Correctly Solved: ${correctCount} shapes in ${settingValue}s! (Score: ${score})`;
+            }
+
+            document.getElementById('final-score-text').textContent = resultText;
+            
+            const enc = document.getElementById('encouragement');
+            if (score >= 80 || correctCount >= 10) {
+                enc.textContent = '🏆 Outstanding! Geometry Master!';
+            } else if (score >= 40) {
+                enc.textContent = '👍 Great job! Fast reflexes!';
+            } else {
+                enc.textContent = '💪 Good effort! Practice again to get faster!';
+            }
+        }
+    </script>
+</body>
+</html>
